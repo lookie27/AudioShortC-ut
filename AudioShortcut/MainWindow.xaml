@@ -43,7 +43,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button x:Name="createShortcutButton" Content="create" HorizontalAlignment="Left" Margin="41,40,0,0" VerticalAlignment="Top" Width="82" Height="46" Background="{x:Null}" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" BorderBrush="#FF767676" BorderThickness="2" MouseEnter="button_MouseEnter" MouseLeave="button_MouseLeave">
+        <Button x:Name="createShortcutButton" Content="create" HorizontalAlignment="Left" Margin="41,40,0,0" VerticalAlignment="Top" Width="82" Height="46" Background="{x:Null}" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" BorderBrush="#FF767676" BorderThickness="2" MouseEnter="button_MouseEnter" MouseLeave="button_MouseLeave" Click="createShortcutButton_Click">
             <Button.Resources>
                 <Style TargetType="Border">
                     <Setter Property="CornerRadius" Value="5"/>

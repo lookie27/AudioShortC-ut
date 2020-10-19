@@ -16,6 +16,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices;
+using System.Reflection;
+using System.IO;
+using System.Resources;
+using IWshRuntimeLibrary;
+using System.Security.Principal;
 
 namespace AudioShortcut
 {
@@ -46,22 +52,49 @@ namespace AudioShortcut
             }
         }
 
-        private void switchAudioDevice(String deviceId)
+        private void switchAudioDevice(String deviceName)
         {
-            Console.WriteLine(deviceId);
-            //CoreAudioController is slow to new up
-            CoreAudioController controller = new CoreAudioController();
-            IEnumerable<CoreAudioDevice> audioDevices = controller.GetPlaybackDevices();
-            foreach(CoreAudioDevice device in audioDevices)
+            string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "nircmd.exe");
+            System.IO.File.WriteAllBytes(path, AudioShortcut.Properties.Resources.nircmd);
+            Process.Start(path, $"setdefaultsounddevice \"{deviceName}\" 1");
+        }
+
+        private void elevatePermissions()
+        {
+            if (!IsElevated())
             {
-                Console.WriteLine(device.RealId);
-                if (device.RealId == deviceId)
+                var path = Assembly.GetExecutingAssembly().Location;
+                using (var process = Process.Start(new ProcessStartInfo(path, "/run_elevated_action")
                 {
-                    controller.SetDefaultDevice(device);
-                    break;
+                    Verb = "runas"
+                }))
+                {
+                    System.Environment.Exit(0);
                 }
             }
+        }
 
+        private static bool IsElevated()
+        {
+            using (var identity = WindowsIdentity.GetCurrent())
+            {
+                var principal = new WindowsPrincipal(identity);
+
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        private void createShortcut(String deviceName)
+        {
+            elevatePermissions();
+            var startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var shell = new WshShell();
+            var shortCutLinkFilePath = System.IO.Path.Combine(startupFolderPath, "CreateShortcutSample.lnk");
+            var windowsApplicationShortcut = (IWshShortcut)shell.CreateShortcut(shortCutLinkFilePath);
+            windowsApplicationShortcut.Description = "AudioShortcut";
+            windowsApplicationShortcut.WorkingDirectory = System.Windows.Forms.Application.StartupPath;
+            windowsApplicationShortcut.TargetPath = System.Windows.Forms.Application.ExecutablePath;
+            windowsApplicationShortcut.Save();
         }
 
         private void button_MouseEnter(object sender, MouseEventArgs e)
@@ -76,7 +109,12 @@ namespace AudioShortcut
 
         private void testShortcutButton_Click(object sender, RoutedEventArgs e)
         {
-            switchAudioDevice(((DisplayAudioDevice)audioDeviceListView.SelectedItem).device.ID);
+            switchAudioDevice(((DisplayAudioDevice)audioDeviceListView.SelectedItem).FriendlyName);
+        }
+
+        private void createShortcutButton_Click(object sender, RoutedEventArgs e)
+        {
+            createShortcut("test");
         }
     }
 
@@ -84,11 +122,13 @@ namespace AudioShortcut
     {
         public MMDevice device { get; }
         public String DeviceFriendlyName { get { return this.device.DeviceFriendlyName;} }
-        public String FriendlyName { get { return removeDeviceFriendlyName(this.device.FriendlyName);} }
+        public String FriendlyName { get { return _FriendlyName; } }
+        private String _FriendlyName;
 
         public DisplayAudioDevice(MMDevice device)
         {
             this.device = device;
+            this._FriendlyName = removeDeviceFriendlyName(this.device.FriendlyName);
         }
 
         private String removeDeviceFriendlyName(String friendlyName)
@@ -98,7 +138,15 @@ namespace AudioShortcut
             {
                 value = value.Remove(value.Length - 1, 1);
             }
-            return value.Remove(value.Length - 1, 1); ;
+
+            value = value.Remove(value.Length - 1, 1);
+
+            if (value[value.Length - 1] == ' ')
+            {
+                value = value.Remove(value.Length - 1, 1);
+            }
+
+            return value;
         }
     }
 }
