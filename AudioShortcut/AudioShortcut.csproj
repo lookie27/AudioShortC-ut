@@ -142,6 +142,9 @@
     <PackageReference Include="AudioSwitcher.AudioApi.CoreAudio">
       <Version>3.0.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
+      <Version>6.1.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Windows.SDK.Contracts">
       <Version>10.0.19041.1</Version>
     </PackageReference>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="45824dff-aee5-4ceb-a6f3-ec52c67b64ea" Name="AudioShortcut" Language="1033" Version="1.0.0.0" Manufacturer="Lucas Buccilli" UpgradeCode="15eff6e5-3fd4-437f-8058-2b1d00fab5b9">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of AudioShortcut is already installed." />
+		<MediaTemplate />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="AudioShortcut" />
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationProgramsFolder" Name="AudioShortcut"/>
+			</Directory>
+		</Directory>
+		
+
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+			<Component Id="ApplicationShortcut" Guid="45824dff-aee5-4ceb-a6f3-ec52c67b64ea">
+				<Shortcut Id="ApplicationStartMenuShortcut"
+						  Name="AudioShortcut"
+						  Description="My Application Description"
+						  Target="[#AudioShortcut.exe]"
+						  WorkingDirectory="APPLICATIONROOTDIRECTORY">
+					<ShortcutProperty Key="System.AppUserModel.ID" Value="LucasBuccilli.AudioShortcut"/>
+					<ShortcutProperty Key="System.AppUserModel.ToastActivatorCLSID" Value="{45824dff-aee5-4ceb-a6f3-ec52c67b64ea}"/>
+				</Shortcut>
+				<RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+				<RegistryValue Root="HKCU" Key="Software\LucasBuccilli\AudioShortcut" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+
+		<Feature Id="ProductFeature" Title="AudioShortcutInstaller" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+			<ComponentRef Id="ApplicationShortcut" />
+		</Feature>
+		
+		
+	</Product>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<Component Id="ProductComponent" Guid="45824dff-aee5-4ceb-a6f3-ec99967b64ea">
+				<File Source="$(var.AudioShortcut.TargetPath)" />
+				<File Source="$(var.AudioShortcut.TargetDir)/AudioSwitcher.AudioApi.CoreAudio.dll" />
+				<File Source="$(var.AudioShortcut.TargetDir)/AudioSwitcher.AudioApi.dll" />
+				<File Source="$(var.AudioShortcut.TargetDir)/Microsoft.Toolkit.Uwp.Notifications.dll" />
+				<File Source="$(var.AudioShortcut.TargetDir)/NAudio.dll" />
+				<File Source="$(var.AudioShortcut.TargetDir)/System.ValueTuple.dll" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

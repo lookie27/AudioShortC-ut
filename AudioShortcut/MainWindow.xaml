@@ -12,13 +12,13 @@
         </Grid.ColumnDefinitions>
         <Rectangle Fill="#FF2C2F33" Margin="10" RadiusX="5" RadiusY="5"/>
         <Rectangle Fill="#FF23272A" Margin="161,24,22,24" RadiusY="5" RadiusX="5"/>
-        <ListView x:Name="audioDeviceListView" Margin="181,40,37,36" Background="#FF23272A" BorderBrush="{x:Null}">
+        <ListView x:Name="audioDeviceListView" Margin="181,40,37,36" Background="#FF23272A" BorderBrush="{x:Null}" MouseDoubleClick="audioDeviceListView_MouseDoubleClick">
             <ListView.ItemTemplate>
                 <DataTemplate x:Name="DoubleLineDataTemplate" DataType="DisplayAudioDevice">
                     <StackPanel Orientation="Horizontal" Height="64" AutomationProperties.Name="{Binding getFriendlyName}">
                         <Ellipse Height="48" Width="48" VerticalAlignment="Center">
                             <Ellipse.Fill>
-                                <ImageBrush ImageSource="Resources/headphoneIcon.png"/>
+                                <ImageBrush ImageSource="{Binding DisplayIcon}"/>
                             </Ellipse.Fill>
                         </Ellipse>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="12,0,0,0">
