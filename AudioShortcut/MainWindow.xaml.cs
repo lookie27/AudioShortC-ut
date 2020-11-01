@@ -34,12 +34,12 @@ namespace AudioShortcut
                 {
                     case ArgumentCommands.CREATE:
                         {
-                            createShortcut(args[2], args[3]);
+                            CreateShortcut(args[2], args[3]);
                             break;
                         }
                     case ArgumentCommands.SWITCH:
                         {
-                            switchAudioDevice(args[2]);
+                            SwitchAudioDevice(args[2]);
                             System.Environment.Exit(0);
                             break;
                         }
@@ -50,11 +50,11 @@ namespace AudioShortcut
                 }
             }
             InitializeComponent();
-            initializeActiveAudioDevices();
+            InitializeActiveAudioDevices();
             audioDeviceListView.ItemsSource = audioDevices;
         }
 
-        private void initializeActiveAudioDevices()
+        private void InitializeActiveAudioDevices()
         {
             MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
             MMDeviceCollection activeAudioDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
@@ -64,26 +64,23 @@ namespace AudioShortcut
             }
         }
 
-        private void switchAudioDevice(String deviceName)
+        private void SwitchAudioDevice(String deviceName)
         {
             string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "nircmd.exe");
             System.IO.File.WriteAllBytes(path, AudioShortcut.Properties.Resources.nircmd);
-            shownNotification(deviceName);
+            ShownNotification(deviceName);
             Process.Start(path, $"setdefaultsounddevice \"{deviceName}\" 1");
         }
 
-        private void elevatePermissions(String deviceName, String iconName)
+        private void RelaunchAsAdmin(String deviceName, String iconName)
         {
-            if (!IsElevated())
+            var path = Assembly.GetExecutingAssembly().Location;
+            using (var process = Process.Start(new ProcessStartInfo(path, $"{ArgumentCommands.CREATE} {deviceName} {iconName} /run_elevated_action")
             {
-                var path = Assembly.GetExecutingAssembly().Location;
-                using (var process = Process.Start(new ProcessStartInfo(path, $"{ArgumentCommands.CREATE} {deviceName} {iconName} /run_elevated_action")
-                {
-                    Verb = "runas"
-                }))
-                {
-                    System.Environment.Exit(0);
-                }
+                Verb = "runas"
+            }))
+            {
+                System.Environment.Exit(0);
             }
         }
 
@@ -97,11 +94,14 @@ namespace AudioShortcut
             }
         }
 
-        private void createShortcut(String deviceName, String iconLocation)
+        private void CreateShortcut(String deviceName, String iconLocation)
         {
             char[] charactersToRemove = { '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
             String trimmedDeviceName = deviceName.Trim(charactersToRemove);
-            elevatePermissions(trimmedDeviceName, iconLocation);
+            if (!IsElevated())
+            {
+                RelaunchAsAdmin(trimmedDeviceName, iconLocation);
+            }
             var startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             var shell = new WshShell();
             var shortCutLinkFilePath = System.IO.Path.Combine(startupFolderPath, $"{trimmedDeviceName}.lnk");
@@ -129,7 +129,7 @@ namespace AudioShortcut
             if (audioDeviceListView.SelectedIndex != -1)
             {
                 DisplayAudioDevice selectedItem = (DisplayAudioDevice)audioDeviceListView.SelectedItem;
-                createShortcut(selectedItem.FriendlyName, selectedItem.IconLocation);
+                CreateShortcut(selectedItem.FriendlyName, selectedItem.IconLocation);
             }
         }
 
@@ -145,7 +145,7 @@ namespace AudioShortcut
             }
         }
 
-        private void shownNotification(String deviceName)
+        private void ShownNotification(String deviceName)
         {
             DesktopNotificationManagerCompat.RegisterAumidAndComServer<MyNotificationActivator>("LucasBuccilli.AudioShortcut");
             DesktopNotificationManagerCompat.RegisterActivator<MyNotificationActivator>();
@@ -163,7 +163,7 @@ namespace AudioShortcut
         {
             if (audioDeviceListView.SelectedIndex != -1)
             {
-                switchAudioDevice(((DisplayAudioDevice)audioDeviceListView.SelectedItem).FriendlyName);
+                SwitchAudioDevice(((DisplayAudioDevice)audioDeviceListView.SelectedItem).FriendlyName);
             }
         }
     }
@@ -187,10 +187,10 @@ namespace AudioShortcut
         {
             this.device = device;
             this.SpeakerType = MMType.SPEAKER;
-            this._FriendlyName = removeDeviceFriendlyName(this.device.FriendlyName);
+            this._FriendlyName = RemoveDeviceFriendlyName(this.device.FriendlyName);
         }
 
-        private String removeDeviceFriendlyName(String friendlyName)
+        private String RemoveDeviceFriendlyName(String friendlyName)
         {
             String value = friendlyName;
             while (value[value.Length - 1] != '(')
@@ -218,5 +218,4 @@ namespace AudioShortcut
         {
         }
     }
-
 }

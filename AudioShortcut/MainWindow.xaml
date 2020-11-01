@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AudioShortcut"
         mc:Ignorable="d"
-        Title="AudioShortcut" Height="465.415" Width="551.787" ShowInTaskbar="False" Background="#FF23272A">
+        Title="AudioShortcut" Height="485.415" Width="551.787" ShowInTaskbar="False" Background="#FF23272A">
     <Grid x:Name="mainGrid" Background="#FF23272A">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -50,7 +50,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="testShortcutButton" Content="test" HorizontalAlignment="Left" Margin="41,102,0,0" VerticalAlignment="Top" Width="82" Height="46" Background="{x:Null}" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" BorderBrush="#FF767676" BorderThickness="2" MouseEnter="button_MouseEnter" MouseLeave="button_MouseLeave" Click="testShortcutButton_Click">
+        <Button x:Name="switchButton" Content="switch" HorizontalAlignment="Left" Margin="41,102,0,0" VerticalAlignment="Top" Width="82" Height="46" Background="{x:Null}" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" BorderBrush="#FF767676" BorderThickness="2" MouseEnter="button_MouseEnter" MouseLeave="button_MouseLeave" Click="switchButton_Click">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="5"/>
